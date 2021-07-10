@@ -11,6 +11,10 @@
 
 
 <div class="container">
+    <div>
+        <button class="btn-info" id="dateTime">Get Current Date</button>
+    </div>
+
     <input type="text" id="TxtMessage" />
     <input type="button" id="BtnSend" value="Send" />
     <input type="hidden" id="UserName" />
@@ -25,18 +29,35 @@
 
     <script>
         $(function () {
-            var chat = $.connection.chatHub;
+            //connection with hub name
+            var chat = $.connection.chat;
+
+            //gets called from hub in client side
             chat.client.NewMessage = function (Cl_Name, Cl_Message) {
                 $('#Chats').append('<li><strong>' + htmlEncode(Cl_Name)
                     + '</strong>: ' + htmlEncode(Cl_Message) + '</li>');
             };
             $('#UserName').val(prompt('Please Enter Your Name:', ''));
             $('#TxtMessage').focus();
+
+            chat.client.GetDateTime = function (response) {
+                alert(response);
+            }
+
+            //start connection with hub
             $.connection.hub.start().done(function () {
+
                 $('#BtnSend').click(function () {
-                    chat.server.letsChat($('#UserName').val(), $('#TxtMessage').val());
+                    //call hub method
+                    chat.server.sendMessage($('#UserName').val(), $('#TxtMessage').val());
                     $('#TxtMessage').val('').focus();
                 });
+
+                $('#dateTime').click(function () {
+                    //call hub method
+                    chat.server.getDataForMe();
+                });
+
             });
         });
 
